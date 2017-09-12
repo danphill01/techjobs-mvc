@@ -15,12 +15,18 @@
 
         <p>
             <span th:each="column : ${columns}">
-                <input
+                <input th:unless="${param.searchType}"
+                       type="radio"
+                       name="searchType"
+                       th:id="${column.key}"
+                       th:value="${column.key}"
+                       th:checked="${column.key == 'all'}"/>
+                <input th:if="${param.searchType}"
                         type="radio"
                         name="searchType"
                         th:id="${column.key}"
                         th:value="${column.key}"
-                        th:checked="${column.key == 'all'}"/>
+                        th:checked="${column.key == param.searchType[0]}"/>
                 <label th:for="${column.key}" th:text="${column.value}"></label>
             </span>
 
@@ -28,7 +34,8 @@
 
         <p>
             <label for="searchTerm">Keyword:</label>
-            <input type="text" name="searchTerm" id="searchTerm" />
+            <input th:if="${param.searchTerm}" type="text" name="searchTerm" id="searchTerm" th:value="${param.searchTerm[0]}"/>
+            <input th:unless="${param.searchTerm}" type="text" name="searchTerm" id="searchTerm" />
         </p>
 
         <input type="submit" value="Search" />
@@ -37,6 +44,18 @@
     <hr />
 
     <!-- TODO #2 - Loop over jobs map to display all job fields -->
+    <div th:fragment="jobsloop">
+        <p th:if="${jobs}" th:text="${jobs.size()} + ' result(s) found.'"></p>
+        <table th:each="job : ${jobs}" class="job-listing">
+            <tr th:each="row : ${job}">
+                <td th:unless="${row.key == 'name'}" >
+                    <p style="display: inline;" th:text="${#strings.capitalizeWords(row.key)} + ': '"></p>
+                    <a th:href="@{/list/jobs(column=${row.key},value=${row.value})}" th:text="${row.value}"></a>
+                </td>
+                <td th:if="${row.key == 'name'}" th:text="${#strings.capitalizeWords(row.key)} + ': ' + ${row.value}"></td>
+            </tr>
+        </table>
+    </div>
 
 </div>
 
